@@ -32,7 +32,7 @@ def is_black(piece):
 
 
 def is_red(piece):
-    return piece.level == CheckerColor.RED
+    return piece.color == CheckerColor.RED
 
 
 class CheckersException(Exception):
