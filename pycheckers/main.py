@@ -1,4 +1,5 @@
 import enum
+from collections import defaultdict
 from dataclasses import dataclass
 
 
@@ -44,25 +45,30 @@ class BadMove(CheckersException):
 
 class CheckersGame:
     def __init__(self):
-        self.board = [[None]*8 for _ in range(8)]
-        self.pieces = set()
+        self.board = {}
         self.turn = CheckerColor.BLACK
 
-    def move(self, color, x, y, x1, y1):
-        if color != self.turn:
-            raise BadMove('Wrong color turn')
-        
-        old_piece = CheckerPiece(color, x, y)
-        if old_piece not in self.pieces:
-            raise BadMove(f'No {color} piece not at: {x} {y}')
-        
-        if not (0 <= x1 < 8):
-            raise Exception(f'{x1} is out of bounds')
+    @classmethod
+    def with_board(cls, board):
+        game = cls()
+        game.board = board
+        return game
 
-        if not (0 <= y1 < 8):
-            raise Exception(f'{y1} is out of bounds')
+    # def move(self, color, x, y, x1, y1):
+    #     if color != self.turn:
+    #         raise BadMove('Wrong color turn')
+        
+    #     old_piece = CheckerPiece(color, x, y)
+    #     if old_piece not in self.pieces:
+    #         raise BadMove(f'No {color} piece not at: {x} {y}')
+        
+    #     if not (0 <= x1 < 8):
+    #         raise Exception(f'{x1} is out of bounds')
 
-        self.next_turn()
+    #     if not (0 <= y1 < 8):
+    #         raise Exception(f'{y1} is out of bounds')
+
+    #     self.next_turn()
     
     def next_turn(self):
         if self.turn == CheckerColor.BLACK:
@@ -71,51 +77,84 @@ class CheckersGame:
             self.turn = CheckerColor.BLACK
 
 
-def empty_square(board, x, y):
-    if not board[y][x]:
-        return True
-    return False
+def out_of_bounds(x, y):
+    return x < 0 or x >= 8 or y < 0 or y >= 8
 
 
-def out_of_bounds(board, x, y):
-    if (0 <= x < 8) and (0 <= y < 8):
-        return False
+def man_legal_moves(game: CheckersGame):
+    with_captures = defaultdict(list)
+    without_captures = defaultdict(list)
 
-    return True
+    current_turn = game.turn
 
-
-def man_legal_moves(board, piece, x, y):
-    direction = man_y_direction(piece)
-    
-    possible_moves = (x+1, y+1*direction), (x-1, y+1*direction)
-
-    moves = []
-
-    for move in possible_moves:
-        if out_of_bounds(board, *move):
+    for position, piece in game.board.items():
+        if piece.color != current_turn:
             continue
 
+        if is_king(piece):
+            continue
 
-def man_can_capture(board, piece, x, y, x1, y1):
-    direction = man_y_direction(piece)
-    
-    if not board[y1][x1]:
-        raise Exception(f'Nothing on the board at ({x1},{y1})')
+        for sq in squares_to_consider_for_man(piece, *position):
+            if out_of_bounds(*sq):
+                continue
+            if is_empty(game, *sq):
+                without_captures[position].append([sq])
+                continue
+            else:
+                capture_sq = get_capture_sq(game, piece, *position, *sq)
+                if capture_sq:
+                    capture_paths = []
+                    _find_capture_paths(game, piece, [capture_sq],
+                                        capture_paths)
+                    with_captures[piece].extend(capture_paths)
+    if with_captures:
+        return with_captures
+    else:
+        return without_captures
+
+
+def _find_capture_paths(game, piece, path, all_paths):
+    start = path[-1]
+
+    end_of_path = True
+    for sq in squares_to_consider_for_man(piece, start):
+        capture_sq = get_capture_sq(game, piece, *start, *sq)
+        if not capture_sq:
+            continue
+        else:
+            path = path + [capture_sq]
+            _find_capture_paths(game, piece, path, all_paths)
+            end_of_path = False
+
+    # this tells us we recursed to the end of the capture path
+    if end_of_path:
+        all_paths.append(path)
+
+
+def get_capture_sq(game, piece, x, y, x1, y1):
+    if is_empty(game, x1, y1):
+        return None
 
     other_color = CheckerColor.RED if piece.color == CheckerColor.BLACK else CheckerColor.BLACK
 
-    if board[y1][x1].color != other_color:
-        return False
+    other_piece = game.board[x1, y1]
 
-    square_to_check = (x1+(x1-x), y+1*direction)
+    if other_piece != other_color:
+        return None
 
-    if out_of_bounds(board, *square_to_check):
-        return False
+    square_to_check = (x1+(x1-x), y1+(y1-y))
 
-    if board[square_to_check[1]][square_to_check[0]]:
-        return False
-    
-    return True
+    if out_of_bounds(*square_to_check):
+        return None
+
+    if not is_empty(game, *square_to_check):
+        return None
+
+    return square_to_check
+
+
+def is_empty(game, x, y):
+    return (x, y) not in game.board
 
 
 def man_y_direction(piece):
@@ -125,12 +164,6 @@ def man_y_direction(piece):
         return 1
 
 
-def squares_to_consider_for_man(board, piece, x, y):
+def squares_to_consider_for_man(piece, x, y):
     direction = man_y_direction(piece)
     return (x+1, y+1*direction), (x-1, y+1*direction)
-
-# def main():
-
-
-if __name__ == '__main__':
-    main()
