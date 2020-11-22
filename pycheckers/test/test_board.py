@@ -43,6 +43,49 @@ def test_legal_move_black_corner():
     }
 
 
+def test_legal_move_black_capture():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+    })
+
+    assert man_legal_moves(game) == {
+        (2, 7): [
+            [(4, 5)]
+        ]
+    }
+
+
+def test_legal_move_black_multi_capture():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (3, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+    })
+
+    assert man_legal_moves(game) == {
+        (2, 7): [
+            [(4, 5), (2, 3)]
+        ]
+    }
+
+
+def test_legal_move_black_multi_capture_different_paths():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (3, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (5, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+    })
+
+    assert man_legal_moves(game) == {
+        (2, 7): [
+            [(4, 5), (6, 3)],
+            [(4, 5), (2, 3)],
+        ]
+    }
+
+
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main(["-vv"])

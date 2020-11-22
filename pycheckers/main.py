@@ -97,7 +97,7 @@ def man_legal_moves(game: CheckersGame):
         for sq in squares_to_consider_for_man(piece, *position):
             if out_of_bounds(*sq):
                 continue
-            if is_empty(game, *sq):
+            if not with_captures and is_empty(game, *sq):
                 without_captures[position].append([sq])
                 continue
             else:
@@ -106,7 +106,7 @@ def man_legal_moves(game: CheckersGame):
                     capture_paths = []
                     _find_capture_paths(game, piece, [capture_sq],
                                         capture_paths)
-                    with_captures[piece].extend(capture_paths)
+                    with_captures[position].extend(capture_paths)
     if with_captures:
         return with_captures
     else:
@@ -117,13 +117,13 @@ def _find_capture_paths(game, piece, path, all_paths):
     start = path[-1]
 
     end_of_path = True
-    for sq in squares_to_consider_for_man(piece, start):
+    for sq in squares_to_consider_for_man(piece, *start):
         capture_sq = get_capture_sq(game, piece, *start, *sq)
         if not capture_sq:
             continue
         else:
-            path = path + [capture_sq]
-            _find_capture_paths(game, piece, path, all_paths)
+            path_new = path + [capture_sq]
+            _find_capture_paths(game, piece, path_new, all_paths)
             end_of_path = False
 
     # this tells us we recursed to the end of the capture path
@@ -139,7 +139,7 @@ def get_capture_sq(game, piece, x, y, x1, y1):
 
     other_piece = game.board[x1, y1]
 
-    if other_piece != other_color:
+    if other_piece.color != other_color:
         return None
 
     square_to_check = (x1+(x1-x), y1+(y1-y))
