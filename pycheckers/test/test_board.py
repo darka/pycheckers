@@ -86,6 +86,25 @@ def test_legal_move_black_multi_capture_different_paths():
     }
 
 
+def test_str_board():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.BLACK, CheckerLevel.KING),
+        (0, 1): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (1, 0): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (3, 2): CheckerPiece(CheckerColor.RED, CheckerLevel.KING),
+    })
+    assert str(game) == """\
+. m . . . . . .
+m . . . . . . .
+. . . k . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . K . . . .
+. . M . . . . ."""
+
+
 
 if __name__ == '__main__':
     pytest.main(["-vv"])

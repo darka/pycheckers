@@ -43,6 +43,22 @@ class BadMove(CheckersException):
     pass
 
 
+ASCII_SYMBOLS = {
+    CheckerColor.RED: {
+        CheckerLevel.MAN: 'm',
+        CheckerLevel.KING: 'k'
+    },
+    CheckerColor.BLACK: {
+        CheckerLevel.MAN: 'M',
+        CheckerLevel.KING: 'K'
+    }
+}
+
+
+def ascii_symbol(piece):
+    return ASCII_SYMBOLS[piece.color][piece.level]
+
+
 class CheckersGame:
     def __init__(self):
         self.board = {}
@@ -53,6 +69,21 @@ class CheckersGame:
         game = cls()
         game.board = board
         return game
+
+    def __str__(self):
+        lines = []
+        for y in range(8):
+            symbols = [self._get_ascii_symbol(x, y) for x in range(8)]
+            line = ' '.join(symbols)
+            lines.append(line)
+        return '\n'.join(lines)
+
+    def _get_ascii_symbol(self, x, y):
+        piece = self.board.get((x, y))
+        if not piece:
+            return '.'
+        else:
+            return ascii_symbol(piece)
 
     # def move(self, color, x, y, x1, y1):
     #     if color != self.turn:
@@ -172,3 +203,18 @@ def nearby_squares(piece, x, y):
     else:
         direction = man_y_direction(piece)
         return (x+1, y+1*direction), (x-1, y+1*direction)
+
+
+def main():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.BLACK, CheckerLevel.KING),
+        (0, 1): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (1, 0): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+        (3, 2): CheckerPiece(CheckerColor.RED, CheckerLevel.KING),
+    })
+    print(game)
+
+
+if __name__ == '__main__':
+    main()
