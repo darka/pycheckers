@@ -94,7 +94,7 @@ def man_legal_moves(game: CheckersGame):
         if is_king(piece):
             continue
 
-        for sq in squares_to_consider_for_man(piece, *position):
+        for sq in nearby_squares(piece, *position):
             if out_of_bounds(*sq):
                 continue
             if not with_captures and is_empty(game, *sq):
@@ -102,11 +102,12 @@ def man_legal_moves(game: CheckersGame):
                 continue
             else:
                 capture_sq = get_capture_sq(game, piece, *position, *sq)
-                if capture_sq:
-                    capture_paths = []
-                    _find_capture_paths(game, piece, [capture_sq],
-                                        capture_paths)
-                    with_captures[position].extend(capture_paths)
+                if not capture_sq:
+                    continue
+                capture_paths = []
+                _find_capture_paths(game, piece, [capture_sq],
+                                    capture_paths)
+                with_captures[position].extend(capture_paths)
     if with_captures:
         return with_captures
     else:
@@ -117,7 +118,7 @@ def _find_capture_paths(game, piece, path, all_paths):
     start = path[-1]
 
     end_of_path = True
-    for sq in squares_to_consider_for_man(piece, *start):
+    for sq in nearby_squares(piece, *start):
         capture_sq = get_capture_sq(game, piece, *start, *sq)
         if not capture_sq:
             continue
@@ -158,12 +159,16 @@ def is_empty(game, x, y):
 
 
 def man_y_direction(piece):
+    assert piece.level == CheckerLevel.MAN
     if is_black(piece):
         return -1
     else:
         return 1
 
 
-def squares_to_consider_for_man(piece, x, y):
-    direction = man_y_direction(piece)
-    return (x+1, y+1*direction), (x-1, y+1*direction)
+def nearby_squares(piece, x, y):
+    if piece.level == CheckerLevel.KING:
+        return (x+1, y+1), (x-1, y+1), (x-1, y-1), (x+1, y-1)
+    else:
+        direction = man_y_direction(piece)
+        return (x+1, y+1*direction), (x-1, y+1*direction)
