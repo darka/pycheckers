@@ -1,5 +1,5 @@
 import pytest
-from pycheckers import *
+from pycheckers.game import *
 
 
 def test_squares_to_consider_for_man():
