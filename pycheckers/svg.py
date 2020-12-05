@@ -9,17 +9,20 @@ def render(game: CheckersGame, board_size: int) -> str:
     for y in range(8):
         for x in range(8):
             piece = game.board.get((x, y))
+
+            # draw empty square
+            ET.SubElement(svg, "rect", square_attributes(x, y, square_size))
             if piece is None:
-                # draw empty square
-                ET.SubElement(svg, "rect", square_attributes(x, y, square_size))
-            else:
-                ET.SubElement(svg, "rect", square_attributes(x, y, square_size))
-                ET.SubElement(
-                    svg,
-                    "circle",
-                    circle_attributes(x, y, square_size, piece_color(piece)),
-                )
-                # draw piece
+                continue
+
+            # draw piece
+            ET.SubElement(svg, "rect", square_attributes(x, y, square_size))
+            ET.SubElement(
+                svg,
+                "circle",
+                circle_attributes(x, y, square_size, piece_color(piece)),
+            )
+
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -33,7 +36,7 @@ def square_attributes(x, y, size):
         "height": str(size),
         "x": str(x * size),
         "y": str(y * size),
-        "style": "fill:yellow;stroke:black;stroke-width:3",
+        "class": "board-square"
     }
 
 
@@ -45,7 +48,7 @@ def circle_attributes(x, y, size, color):
         "cx": str(cx),
         "cy": str(cy),
         "r": str(r),
-        "style": f"fill:{color};stroke:black;stroke-width:3",
+        "class": f"checker-{color}"
     }
 
 
