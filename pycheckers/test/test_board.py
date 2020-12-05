@@ -105,6 +105,34 @@ m . . . . . . .
 . . M . . . . ."""
 
 
+def test_illegal_moves():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+        (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+    })
+
+    with pytest.raises(BadMoveException):
+        game.move(0, 1, 1, 2)
+
+    with pytest.raises(BadMoveException):
+        game.move(2, 7, 3, 8)
+
+    with pytest.raises(BadMoveException):
+        game.move(2, 7, 3, 6)
+
+    with pytest.raises(BadMoveException):
+        game.move(2, 7, 0, 0)
+
+
+def test_legal_move():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+    })
+
+    game.move(2, 7, 3, 6)
+
+    assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
+
 
 if __name__ == '__main__':
     pytest.main(["-vv"])

@@ -39,7 +39,7 @@ class CheckersException(Exception):
     pass
 
 
-class BadMove(CheckersException):
+class BadMoveException(CheckersException):
     pass
 
 
@@ -85,21 +85,35 @@ class CheckersGame:
         else:
             return ascii_symbol(piece)
 
-    # def move(self, color, x, y, x1, y1):
-    #     if color != self.turn:
-    #         raise BadMove('Wrong color turn')
-        
-    #     old_piece = CheckerPiece(color, x, y)
-    #     if old_piece not in self.pieces:
-    #         raise BadMove(f'No {color} piece not at: {x} {y}')
-        
-    #     if not (0 <= x1 < 8):
-    #         raise Exception(f'{x1} is out of bounds')
+    def move(self, x, y, x1, y1):
+        # Is there such a piece?
+        if (x, y) not in self.board:
+            raise BadMoveException(f'Square ({x}, {y}) is empty')
 
-    #     if not (0 <= y1 < 8):
-    #         raise Exception(f'{y1} is out of bounds')
+        piece = self.board[x, y]
 
-    #     self.next_turn()
+        # Is the colour right?
+        if piece.color != self.turn:
+            raise BadMoveException('Wrong color turn')
+
+        legal_moves = man_legal_moves(self)
+
+        # Can this piece move at all?
+        if (x, y) not in legal_moves:
+            raise BadMoveException('Piece cannot move anywhere')
+        
+        # Is this move legal?
+        for legal_move in legal_moves[x, y]:
+            if (x1, y1) == legal_move[0]:
+                break
+        else:
+            raise BadMoveException(f'Piece cannot move to ({x1}, {y1})')
+
+        # Move the piece
+        self.board[x1, y1] = piece
+        del self.board[x, y]
+
+        self.next_turn()
     
     def next_turn(self):
         if self.turn == CheckerColor.BLACK:
@@ -112,7 +126,7 @@ def out_of_bounds(x, y):
     return x < 0 or x >= 8 or y < 0 or y >= 8
 
 
-def man_legal_moves(game: CheckersGame):
+def man_legal_moves(game: CheckersGame):  # TODO: add a cache
     with_captures = defaultdict(list)
     without_captures = defaultdict(list)
 
@@ -128,17 +142,21 @@ def man_legal_moves(game: CheckersGame):
         for sq in nearby_squares(piece, *position):
             if out_of_bounds(*sq):
                 continue
+
             if not with_captures and is_empty(game, *sq):
                 without_captures[position].append([sq])
                 continue
-            else:
-                capture_sq = get_capture_sq(game, piece, *position, *sq)
-                if not capture_sq:
-                    continue
-                capture_paths = []
-                _find_capture_paths(game, piece, [capture_sq],
-                                    capture_paths)
-                with_captures[position].extend(capture_paths)
+
+            # Check nearby squares if we can capture something
+            capture_sq = get_capture_sq(game, piece, *position, *sq)
+            if not capture_sq:
+                continue
+
+            # If we can capture something, recursively find all possible moves
+            capture_paths = []
+            _find_capture_paths(game, piece, [capture_sq],
+                                capture_paths)
+            with_captures[position].extend(capture_paths)
     if with_captures:
         return with_captures
     else:
