@@ -4,18 +4,18 @@ from pycheckers.game import *
 
 def test_squares_to_consider_for_man():
     piece = CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
-    assert nearby_squares(piece, 1, 0) == ((2, 1), (0, 1))
+    assert nearby_squares(piece, (1, 0)) == ((2, 1), (0, 1))
 
 
 def test_out_of_bounds():
-    assert not out_of_bounds(0, 0)
-    assert not out_of_bounds(0, 2)
-    assert not out_of_bounds(5, 1)
-    assert not out_of_bounds(7, 7)
-    assert out_of_bounds(-1, 0)
-    assert out_of_bounds(0, -1)
-    assert out_of_bounds(8, 0)
-    assert out_of_bounds(0, 8)
+    assert not out_of_bounds((0, 0))
+    assert not out_of_bounds((0, 2))
+    assert not out_of_bounds((5, 1))
+    assert not out_of_bounds((7, 7))
+    assert out_of_bounds((-1, 0))
+    assert out_of_bounds((0, -1))
+    assert out_of_bounds((8, 0))
+    assert out_of_bounds((0, 8))
 
 
 def test_legal_move_black_basic():
@@ -112,16 +112,16 @@ def test_illegal_moves():
     })
 
     with pytest.raises(BadMoveException):
-        game.move(0, 1, [(1, 2)])
+        game.move((0, 1), [(1, 2)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, [(3, 8)])
+        game.move((2, 7), [(3, 8)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, [(3, 6)])
+        game.move((2, 7), [(3, 6)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, [(0, 0)])
+        game.move((2, 7), [(0, 0)])
 
 
 def test_legal_move():
@@ -129,7 +129,7 @@ def test_legal_move():
         (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
     })
 
-    game.move(2, 7, [(3, 6)])
+    game.move((2, 7), [(3, 6)])
 
     assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
 
@@ -139,7 +139,7 @@ def test_legal_move_as_list():
         (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
     })
 
-    game.move(2, 7, [[3, 6]])
+    game.move((2, 7), [[3, 6]])
 
     assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
 
