@@ -112,16 +112,16 @@ def test_illegal_moves():
     })
 
     with pytest.raises(BadMoveException):
-        game.move(0, 1, 1, 2)
+        game.move(0, 1, [(1, 2)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, 3, 8)
+        game.move(2, 7, [(3, 8)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, 3, 6)
+        game.move(2, 7, [(3, 6)])
 
     with pytest.raises(BadMoveException):
-        game.move(2, 7, 0, 0)
+        game.move(2, 7, [(0, 0)])
 
 
 def test_legal_move():
@@ -129,10 +129,19 @@ def test_legal_move():
         (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
     })
 
-    game.move(2, 7, 3, 6)
+    game.move(2, 7, [(3, 6)])
 
     assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
 
+
+def test_legal_move_as_list():
+    game = CheckersGame.with_board({
+        (2, 7): CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN),
+    })
+
+    game.move(2, 7, [[3, 6]])
+
+    assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
 
 if __name__ == '__main__':
     pytest.main(["-vv"])

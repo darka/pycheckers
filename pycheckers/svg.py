@@ -16,7 +16,6 @@ def render(game: CheckersGame, board_size: int) -> str:
                 continue
 
             # draw piece
-            ET.SubElement(svg, "rect", square_attributes(x, y, square_size))
             ET.SubElement(
                 svg,
                 "circle",
@@ -36,7 +35,8 @@ def square_attributes(x, y, size):
         "height": str(size),
         "x": str(x * size),
         "y": str(y * size),
-        "class": "board-square"
+        "class": "board-square",
+        "id": f"board-square-{x}-{y}"
     }
 
 
