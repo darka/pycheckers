@@ -85,8 +85,8 @@ class CheckersGame:
         else:
             return ascii_symbol(piece)
 
-    def move(self, x, y, move):
-        move = [tuple(m) for m in move]
+    def move(self, x, y, moves):
+        moves = [tuple(m) for m in moves]
         # Is there such a piece?
         if (x, y) not in self.board:
             raise BadMoveException(f'Square ({x}, {y}) is empty')
@@ -105,13 +105,19 @@ class CheckersGame:
         
         # Is this move legal?
         for legal_move in legal_moves[x, y]:
-            if move == legal_move:
+            if moves == legal_move:
                 break
         else:
-            raise BadMoveException(f'Piece cannot move to ({move})')
+            raise BadMoveException(f'Piece cannot move to ({moves})')
 
         # Move the piece
-        final_pos = move[-1]
+        current = (x, y)
+        for move in moves:
+            if is_capture_move(current, move):
+                sq = capture_square(current, move)
+                del self.board[sq]
+
+        final_pos = moves[-1]
         self.board[final_pos] = piece
         del self.board[x, y]
 
@@ -122,6 +128,18 @@ class CheckersGame:
             self.turn = CheckerColor.RED
         else:
             self.turn = CheckerColor.BLACK
+
+
+def is_capture_move(start, end):
+    return abs(end[0] - start[0]) == 2
+
+
+def capture_square(start, end):
+    dx = end[0] - start[0]
+    dx = dx / abs(dx)
+    dy = end[1] - start[1]
+    dy = dy / abs(dy)
+    return (start[0] + dx, start[1] + dy)
 
 
 def out_of_bounds(x, y):
