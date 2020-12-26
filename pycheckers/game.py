@@ -43,6 +43,18 @@ class BadMoveException(CheckersException):
     pass
 
 
+RED_START_POS = [
+    (1, 0), (3, 0), (5, 0), (7, 0),
+    (0, 1), (2, 1), (4, 1), (6, 1),
+    (1, 2), (3, 2), (5, 2), (7, 2),
+]
+
+BLACK_START_POS = [
+    (0, 5), (2, 5), (4, 5), (6, 5),
+    (1, 6), (3, 6), (5, 6), (7, 6),
+    (0, 7), (2, 7), (4, 7), (6, 7),
+]
+
 ASCII_SYMBOLS = {
     CheckerColor.RED: {
         CheckerLevel.MAN: 'm',
@@ -53,6 +65,14 @@ ASCII_SYMBOLS = {
         CheckerLevel.KING: 'K'
     }
 }
+
+def initial_setup_board():
+    return CheckersGame.with_board(
+        {
+            **{pos: CheckerPiece( CheckerColor.RED, CheckerLevel.MAN ) for pos in RED_START_POS},
+            **{pos: CheckerPiece( CheckerColor.BLACK, CheckerLevel.MAN ) for pos in BLACK_START_POS},
+        }
+    )
 
 
 def ascii_symbol(piece):
@@ -112,10 +132,12 @@ class CheckersGame:
             raise BadMoveException(f'Piece cannot move to ({moves})')
 
         # Move the piece
+        prev_move = start
         for move in moves:
-            if is_capture_move(start, move):
-                sq = capture_square(start, move)
+            if is_capture_move(prev_move, move):
+                sq = capture_square(prev_move, move)
                 del self.board[sq]
+            prev_move = move
 
         final_pos = moves[-1]
         self.board[final_pos] = piece
