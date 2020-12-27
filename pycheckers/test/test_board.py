@@ -143,5 +143,25 @@ def test_legal_move_as_list():
 
     assert game.board[3, 6] == CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
 
+
+def test_pos_to_square_number():
+    assert pos_to_square_number((1, 0)) == 1
+    assert pos_to_square_number((7, 0)) == 4
+    assert pos_to_square_number((0, 1)) == 5
+    assert pos_to_square_number((6, 1)) == 8
+    assert pos_to_square_number((6, 5)) == 24
+    assert pos_to_square_number((7, 6)) == 28
+    assert pos_to_square_number((6, 7)) == 32
+
+
+def test_square_number_to_pos():
+    assert square_number_to_pos(1) == (1, 0)
+    assert square_number_to_pos(4) == (7, 0)
+    assert square_number_to_pos(5) == (0, 1)
+    assert square_number_to_pos(28) == (7, 6)
+    assert square_number_to_pos(29) == (0, 7)
+    assert square_number_to_pos(32) == (6, 7)
+
+
 if __name__ == '__main__':
     pytest.main(["-vv"])

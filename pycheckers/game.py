@@ -169,6 +169,20 @@ def out_of_bounds(sq):
     return x < 0 or x >= 8 or y < 0 or y >= 8
 
 
+def pos_to_square_number(pos):
+    nx = pos[0] // 2 + 1
+    ny = 4 * pos[1]
+    return ny + nx
+
+
+def square_number_to_pos(n):
+    y = (n-1) // 4
+    x = (n-1) % 4 * 2
+    if y % 2 == 0:
+        x += 1
+    return (x, y)
+
+
 def man_legal_moves(game: CheckersGame):  # TODO: add a cache
     with_captures = defaultdict(list)
     without_captures = defaultdict(list)
