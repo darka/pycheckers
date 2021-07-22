@@ -44,33 +44,52 @@ class BadMoveException(CheckersException):
 
 
 RED_START_POS = [
-    (1, 0), (3, 0), (5, 0), (7, 0),
-    (0, 1), (2, 1), (4, 1), (6, 1),
-    (1, 2), (3, 2), (5, 2), (7, 2),
+    (1, 0),
+    (3, 0),
+    (5, 0),
+    (7, 0),
+    (0, 1),
+    (2, 1),
+    (4, 1),
+    (6, 1),
+    (1, 2),
+    (3, 2),
+    (5, 2),
+    (7, 2),
 ]
 
 BLACK_START_POS = [
-    (0, 5), (2, 5), (4, 5), (6, 5),
-    (1, 6), (3, 6), (5, 6), (7, 6),
-    (0, 7), (2, 7), (4, 7), (6, 7),
+    (0, 5),
+    (2, 5),
+    (4, 5),
+    (6, 5),
+    (1, 6),
+    (3, 6),
+    (5, 6),
+    (7, 6),
+    (0, 7),
+    (2, 7),
+    (4, 7),
+    (6, 7),
 ]
 
 ASCII_SYMBOLS = {
-    CheckerColor.RED: {
-        CheckerLevel.MAN: 'm',
-        CheckerLevel.KING: 'k'
-    },
-    CheckerColor.BLACK: {
-        CheckerLevel.MAN: 'M',
-        CheckerLevel.KING: 'K'
-    }
+    CheckerColor.RED: {CheckerLevel.MAN: "m", CheckerLevel.KING: "k"},
+    CheckerColor.BLACK: {CheckerLevel.MAN: "M", CheckerLevel.KING: "K"},
 }
+
 
 def initial_setup_board():
     return CheckersGame.with_board(
         {
-            **{pos: CheckerPiece( CheckerColor.RED, CheckerLevel.MAN ) for pos in RED_START_POS},
-            **{pos: CheckerPiece( CheckerColor.BLACK, CheckerLevel.MAN ) for pos in BLACK_START_POS},
+            **{
+                pos: CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
+                for pos in RED_START_POS
+            },
+            **{
+                pos: CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
+                for pos in BLACK_START_POS
+            },
         }
     )
 
@@ -94,14 +113,14 @@ class CheckersGame:
         lines = []
         for y in range(8):
             symbols = [self._get_ascii_symbol((x, y)) for x in range(8)]
-            line = ' '.join(symbols)
+            line = " ".join(symbols)
             lines.append(line)
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _get_ascii_symbol(self, pos):
         piece = self.board.get(pos)
         if not piece:
-            return '.'
+            return "."
         else:
             return ascii_symbol(piece)
 
@@ -110,26 +129,26 @@ class CheckersGame:
         start = tuple(start)
         # Is there such a piece?
         if start not in self.board:
-            raise BadMoveException(f'Square {start} is empty')
+            raise BadMoveException(f"Square {start} is empty")
 
         piece = self.board[start]
 
         # Is the colour right?
         if piece.color != self.turn:
-            raise BadMoveException('Wrong color turn')
+            raise BadMoveException("Wrong color turn")
 
         legal_moves = man_legal_moves(self)
 
         # Can this piece move at all?
         if start not in legal_moves:
-            raise BadMoveException('Piece cannot move anywhere')
-        
+            raise BadMoveException("Piece cannot move anywhere")
+
         # Is this move legal?
         for legal_move in legal_moves[start]:
             if moves == legal_move:
                 break
         else:
-            raise BadMoveException(f'Piece cannot move to ({moves})')
+            raise BadMoveException(f"Piece cannot move to ({moves})")
 
         # Move the piece
         prev_move = start
@@ -144,7 +163,7 @@ class CheckersGame:
         del self.board[start]
 
         self.next_turn()
-    
+
     def next_turn(self):
         if self.turn == CheckerColor.BLACK:
             self.turn = CheckerColor.RED
@@ -176,8 +195,8 @@ def pos_to_square_number(pos):
 
 
 def square_number_to_pos(n):
-    y = (n-1) // 4
-    x = (n-1) % 4 * 2
+    y = (n - 1) // 4
+    x = (n - 1) % 4 * 2
     if y % 2 == 0:
         x += 1
     return (x, y)
@@ -211,8 +230,7 @@ def man_legal_moves(game: CheckersGame):  # TODO: add a cache
 
             # If we can capture something, recursively find all possible moves
             capture_paths = []
-            _find_capture_paths(game, piece, [capture_sq],
-                                capture_paths)
+            _find_capture_paths(game, piece, [capture_sq], capture_paths)
             with_captures[position].extend(capture_paths)
     if with_captures:
         return with_captures
@@ -242,7 +260,9 @@ def get_capture_sq(game, piece, pos, other_pos):
     if is_empty(game, other_pos):
         return None
 
-    other_color = CheckerColor.RED if piece.color == CheckerColor.BLACK else CheckerColor.BLACK
+    other_color = (
+        CheckerColor.RED if piece.color == CheckerColor.BLACK else CheckerColor.BLACK
+    )
 
     other_piece = game.board[other_pos]
 
@@ -251,7 +271,7 @@ def get_capture_sq(game, piece, pos, other_pos):
 
     x, y = pos
     x1, y1 = other_pos
-    square_to_check = (x1+(x1-x), y1+(y1-y))
+    square_to_check = (x1 + (x1 - x), y1 + (y1 - y))
 
     if out_of_bounds(square_to_check):
         return None
@@ -277,8 +297,7 @@ def man_y_direction(piece):
 def nearby_squares(piece, pos):
     x, y = pos
     if piece.level == CheckerLevel.KING:
-        return (x+1, y+1), (x-1, y+1), (x-1, y-1), (x+1, y-1)
+        return (x + 1, y + 1), (x - 1, y + 1), (x - 1, y - 1), (x + 1, y - 1)
     else:
         direction = man_y_direction(piece)
-        return (x+1, y+1*direction), (x-1, y+1*direction)
-
+        return (x + 1, y + 1 * direction), (x - 1, y + 1 * direction)

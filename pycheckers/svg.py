@@ -36,7 +36,7 @@ def square_attributes(x, y, size):
         "x": str(x * size),
         "y": str(y * size),
         "class": "board-square",
-        "id": f"board-square-{x}-{y}"
+        "id": f"board-square-{x}-{y}",
     }
 
 
@@ -44,12 +44,7 @@ def circle_attributes(x, y, size, color):
     cx = x * size + size // 2
     cy = y * size + size // 2
     r = round(0.4 * size)
-    return {
-        "cx": str(cx),
-        "cy": str(cy),
-        "r": str(r),
-        "class": f"checker-{color}"
-    }
+    return {"cx": str(cx), "cy": str(cy), "r": str(r), "class": f"checker-{color}"}
 
 
 def piece_color(checkers_piece):
