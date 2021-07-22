@@ -1,16 +1,17 @@
-import enum
+from enum import Enum, auto
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 
-class CheckerColor(enum.Enum):
-    RED = enum.auto()
-    BLACK = enum.auto()
+class CheckerColor(Enum):
+    RED = auto()
+    BLACK = auto()
 
 
-class CheckerLevel(enum.Enum):
-    MAN = enum.auto()
-    KING = enum.auto()
+class CheckerLevel(Enum):
+    MAN = auto()
+    KING = auto()
 
 
 @dataclass(frozen=True)
@@ -19,19 +20,19 @@ class CheckerPiece:
     level: CheckerLevel
 
 
-def is_man(piece):
+def is_man(piece: CheckerPiece) -> bool:
     return piece.level == CheckerLevel.MAN
 
 
-def is_king(piece):
+def is_king(piece: CheckerPiece) -> bool:
     return piece.level == CheckerLevel.KING
 
 
-def is_black(piece):
+def is_black(piece: CheckerPiece) -> bool:
     return piece.color == CheckerColor.BLACK
 
 
-def is_red(piece):
+def is_red(piece: CheckerPiece) -> bool:
     return piece.color == CheckerColor.RED
 
 
@@ -79,22 +80,7 @@ ASCII_SYMBOLS = {
 }
 
 
-def initial_setup_board():
-    return CheckersGame.with_board(
-        {
-            **{
-                pos: CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
-                for pos in RED_START_POS
-            },
-            **{
-                pos: CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
-                for pos in BLACK_START_POS
-            },
-        }
-    )
-
-
-def ascii_symbol(piece):
+def ascii_symbol(piece: CheckerPiece) -> str:
     return ASCII_SYMBOLS[piece.color][piece.level]
 
 
@@ -104,7 +90,7 @@ class CheckersGame:
         self.turn = CheckerColor.BLACK
 
     @classmethod
-    def with_board(cls, board):
+    def with_board(cls, board: dict):
         game = cls()
         game.board = board
         return game
@@ -117,14 +103,14 @@ class CheckersGame:
             lines.append(line)
         return "\n".join(lines)
 
-    def _get_ascii_symbol(self, pos):
+    def _get_ascii_symbol(self, pos: Tuple[int, int]) -> str:
         piece = self.board.get(pos)
         if not piece:
             return "."
         else:
             return ascii_symbol(piece)
 
-    def move(self, start, moves):
+    def move(self, start: Tuple[int, int], moves: List[Tuple[int, int]]) -> None:
         moves = [tuple(m) for m in moves]
         start = tuple(start)
         # Is there such a piece?
@@ -164,18 +150,18 @@ class CheckersGame:
 
         self.next_turn()
 
-    def next_turn(self):
+    def next_turn(self) -> None:
         if self.turn == CheckerColor.BLACK:
             self.turn = CheckerColor.RED
         else:
             self.turn = CheckerColor.BLACK
 
 
-def is_capture_move(start, end):
+def is_capture_move(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
     return abs(end[0] - start[0]) == 2
 
 
-def capture_square(start, end):
+def capture_square(start: Tuple[int, int], end: Tuple[int, int]) -> Tuple[int, int]:
     dx = end[0] - start[0]
     dx = dx / abs(dx)
     dy = end[1] - start[1]
@@ -183,7 +169,7 @@ def capture_square(start, end):
     return (start[0] + dx, start[1] + dy)
 
 
-def out_of_bounds(sq):
+def out_of_bounds(sq: Tuple[int, int]) -> bool:
     x, y = sq
     return x < 0 or x >= 8 or y < 0 or y >= 8
 
@@ -202,7 +188,7 @@ def square_number_to_pos(n):
     return (x, y)
 
 
-def man_legal_moves(game: CheckersGame):  # TODO: add a cache
+def man_legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
     with_captures = defaultdict(list)
     without_captures = defaultdict(list)
 
@@ -238,7 +224,12 @@ def man_legal_moves(game: CheckersGame):  # TODO: add a cache
         return without_captures
 
 
-def _find_capture_paths(game, piece, path, all_paths):
+def _find_capture_paths(
+    game: CheckersGame,
+    piece: CheckerPiece,
+    path: List[Tuple[int, int]],
+    all_paths: List[List[Tuple[int, int]]],
+):
     start = path[-1]
 
     end_of_path = True
@@ -256,7 +247,12 @@ def _find_capture_paths(game, piece, path, all_paths):
         all_paths.append(path)
 
 
-def get_capture_sq(game, piece, pos, other_pos):
+def get_capture_sq(
+    game: CheckersGame,
+    piece: CheckerPiece,
+    pos: Tuple[int, int],
+    other_pos: Tuple[int, int],
+) -> Optional[Tuple[int, int]]:
     if is_empty(game, other_pos):
         return None
 
@@ -282,11 +278,11 @@ def get_capture_sq(game, piece, pos, other_pos):
     return square_to_check
 
 
-def is_empty(game, pos):
+def is_empty(game: CheckersGame, pos: Tuple[int, int]) -> bool:
     return pos not in game.board
 
 
-def man_y_direction(piece):
+def man_y_direction(piece: CheckerPiece) -> int:
     assert piece.level == CheckerLevel.MAN
     if is_black(piece):
         return -1
@@ -294,10 +290,25 @@ def man_y_direction(piece):
         return 1
 
 
-def nearby_squares(piece, pos):
+def nearby_squares(piece: CheckerPiece, pos: Tuple[int, int]) -> List[Tuple[int, int]]:
     x, y = pos
     if piece.level == CheckerLevel.KING:
-        return (x + 1, y + 1), (x - 1, y + 1), (x - 1, y - 1), (x + 1, y - 1)
+        return [(x + 1, y + 1), (x - 1, y + 1), (x - 1, y - 1), (x + 1, y - 1)]
     else:
         direction = man_y_direction(piece)
-        return (x + 1, y + 1 * direction), (x - 1, y + 1 * direction)
+        return [(x + 1, y + 1 * direction), (x - 1, y + 1 * direction)]
+
+
+def initial_setup_board() -> CheckersGame:
+    return CheckersGame.with_board(
+        {
+            **{
+                pos: CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
+                for pos in RED_START_POS
+            },
+            **{
+                pos: CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
+                for pos in BLACK_START_POS
+            },
+        }
+    )

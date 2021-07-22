@@ -4,7 +4,7 @@ from pycheckers.game import *
 
 def test_squares_to_consider_for_man():
     piece = CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
-    assert nearby_squares(piece, (1, 0)) == ((2, 1), (0, 1))
+    assert nearby_squares(piece, (1, 0)) == [(2, 1), (0, 1)]
 
 
 def test_out_of_bounds():
