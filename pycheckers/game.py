@@ -123,14 +123,14 @@ class CheckersGame:
         if piece.color != self.turn:
             raise BadMoveException("Wrong color turn")
 
-        legal_moves = man_legal_moves(self)
+        all_legal_moves = legal_moves(self)
 
         # Can this piece move at all?
-        if start not in legal_moves:
+        if start not in all_legal_moves:
             raise BadMoveException("Piece cannot move anywhere")
 
         # Is this move legal?
-        for legal_move in legal_moves[start]:
+        for legal_move in all_legal_moves[start]:
             if moves == legal_move:
                 break
         else:
@@ -199,7 +199,7 @@ def square_number_to_pos(n):
     return (x, y)
 
 
-def man_legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
+def legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
     with_captures = defaultdict(list)
     without_captures = defaultdict(list)
 
