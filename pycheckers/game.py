@@ -148,6 +148,17 @@ class CheckersGame:
         self.board[final_pos] = piece
         del self.board[start]
 
+        # Upgrade piece if we reached the end of the board
+        if is_man(piece):
+            if is_red(piece) and final_pos[1] == 7:
+                self.board[final_pos] = CheckerPiece(
+                    CheckerColor.RED, CheckerLevel.KING
+                )
+            elif is_black(piece) and final_pos[0] == 0:
+                self.board[final_pos] = CheckerPiece(
+                    CheckerColor.BLACK, CheckerLevel.KING
+                )
+
         self.next_turn()
 
     def next_turn(self) -> None:
@@ -198,9 +209,6 @@ def man_legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
         if piece.color != current_turn:
             continue
 
-        if is_king(piece):
-            continue
-
         for sq in nearby_squares(piece, position):
             if out_of_bounds(sq):
                 continue
@@ -237,6 +245,8 @@ def _find_capture_paths(
         capture_sq = get_capture_sq(game, piece, start, sq)
         if not capture_sq:
             continue
+        elif capture_sq in path:
+            continue
         else:
             path_new = path + [capture_sq]
             _find_capture_paths(game, piece, path_new, all_paths)
@@ -262,7 +272,7 @@ def get_capture_sq(
 
     other_piece = game.board[other_pos]
 
-    if other_piece.color != other_color:
+    if other_piece.color is not other_color:
         return None
 
     x, y = pos
