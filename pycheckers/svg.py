@@ -51,4 +51,4 @@ def piece_color(checkers_piece):
     if is_red(checkers_piece):
         return "red"
     else:
-        return "black"
+        return "white"
