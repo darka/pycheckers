@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 
 class CheckerColor(Enum):
     RED = auto()
-    BLACK = auto()
+    WHITE = auto()
 
 
 class CheckerLevel(Enum):
@@ -30,7 +30,7 @@ def is_king(piece: CheckerPiece) -> bool:
 
 
 def is_black(piece: CheckerPiece) -> bool:
-    return piece.color == CheckerColor.BLACK
+    return piece.color == CheckerColor.WHITE
 
 
 def is_red(piece: CheckerPiece) -> bool:
@@ -60,7 +60,7 @@ RED_START_POS = [
     (6, 7),
 ]
 
-BLACK_START_POS = [
+WHITE_START_POS = [
     (1, 0),
     (3, 0),
     (5, 0),
@@ -77,7 +77,7 @@ BLACK_START_POS = [
 
 ASCII_SYMBOLS = {
     CheckerColor.RED: {CheckerLevel.MAN: "m", CheckerLevel.KING: "k"},
-    CheckerColor.BLACK: {CheckerLevel.MAN: "M", CheckerLevel.KING: "K"},
+    CheckerColor.WHITE: {CheckerLevel.MAN: "M", CheckerLevel.KING: "K"},
 }
 
 
@@ -86,13 +86,13 @@ def ascii_symbol(piece: CheckerPiece) -> str:
 
 
 class CheckersGame:
-    def __init__(self):
+    def __init__(self, turn: CheckerColor = CheckerColor.RED):
         self.board = {}
-        self.turn = CheckerColor.RED
+        self.turn = turn
 
     @classmethod
-    def with_board(cls, board: dict):
-        game = cls()
+    def with_board(cls, board: dict, turn: CheckerColor = CheckerColor.RED) -> "CheckersGame":
+        game = cls(turn)
         game.board = board
         return game
 
@@ -166,16 +166,16 @@ class CheckersGame:
                 )
             elif is_black(piece) and final_pos[0] == 0:
                 self.board[final_pos] = CheckerPiece(
-                    CheckerColor.BLACK, CheckerLevel.KING
+                    CheckerColor.WHITE, CheckerLevel.KING
                 )
 
         self.next_turn()
 
     def next_turn(self) -> None:
-        if self.turn == CheckerColor.BLACK:
+        if self.turn == CheckerColor.WHITE:
             self.turn = CheckerColor.RED
         else:
-            self.turn = CheckerColor.BLACK
+            self.turn = CheckerColor.WHITE
 
 
 def is_capture_move(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
@@ -277,7 +277,7 @@ def get_capture_sq(
         return None
 
     other_color = (
-        CheckerColor.RED if piece.color == CheckerColor.BLACK else CheckerColor.BLACK
+        CheckerColor.RED if piece.color == CheckerColor.WHITE else CheckerColor.WHITE
     )
 
     other_piece = game.board[other_pos]
@@ -327,8 +327,8 @@ def initial_setup_board() -> CheckersGame:
                 for pos in RED_START_POS
             },
             **{
-                pos: CheckerPiece(CheckerColor.BLACK, CheckerLevel.MAN)
-                for pos in BLACK_START_POS
+                pos: CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
+                for pos in WHITE_START_POS
             },
         }
     )
