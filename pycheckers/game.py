@@ -46,21 +46,6 @@ class BadMoveException(CheckersException):
 
 
 RED_START_POS = [
-    (1, 0),
-    (3, 0),
-    (5, 0),
-    (7, 0),
-    (0, 1),
-    (2, 1),
-    (4, 1),
-    (6, 1),
-    (1, 2),
-    (3, 2),
-    (5, 2),
-    (7, 2),
-]
-
-BLACK_START_POS = [
     (0, 5),
     (2, 5),
     (4, 5),
@@ -73,6 +58,21 @@ BLACK_START_POS = [
     (2, 7),
     (4, 7),
     (6, 7),
+]
+
+BLACK_START_POS = [
+    (1, 0),
+    (3, 0),
+    (5, 0),
+    (7, 0),
+    (0, 1),
+    (2, 1),
+    (4, 1),
+    (6, 1),
+    (1, 2),
+    (3, 2),
+    (5, 2),
+    (7, 2),
 ]
 
 ASCII_SYMBOLS = {
@@ -88,7 +88,7 @@ def ascii_symbol(piece: CheckerPiece) -> str:
 class CheckersGame:
     def __init__(self):
         self.board = {}
-        self.turn = CheckerColor.BLACK
+        self.turn = CheckerColor.RED
 
     @classmethod
     def with_board(cls, board: dict):
