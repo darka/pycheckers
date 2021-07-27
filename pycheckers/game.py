@@ -29,7 +29,7 @@ def is_king(piece: CheckerPiece) -> bool:
     return piece.level == CheckerLevel.KING
 
 
-def is_black(piece: CheckerPiece) -> bool:
+def is_white(piece: CheckerPiece) -> bool:
     return piece.color == CheckerColor.WHITE
 
 
@@ -160,11 +160,11 @@ class CheckersGame:
 
         # Upgrade piece if we reached the end of the board
         if is_man(piece):
-            if is_red(piece) and final_pos[1] == 7:
+            if is_red(piece) and final_pos[1] == 0:
                 self.board[final_pos] = CheckerPiece(
                     CheckerColor.RED, CheckerLevel.KING
                 )
-            elif is_black(piece) and final_pos[0] == 0:
+            elif is_white(piece) and final_pos[1] == 7:
                 self.board[final_pos] = CheckerPiece(
                     CheckerColor.WHITE, CheckerLevel.KING
                 )
@@ -304,10 +304,10 @@ def is_empty(game: CheckersGame, pos: Tuple[int, int]) -> bool:
 
 def man_y_direction(piece: CheckerPiece) -> int:
     assert piece.level == CheckerLevel.MAN
-    if is_black(piece):
-        return -1
-    else:
+    if is_white(piece):
         return 1
+    else:
+        return -1
 
 
 def nearby_squares(piece: CheckerPiece, pos: Tuple[int, int]) -> List[Tuple[int, int]]:
