@@ -3,7 +3,7 @@ from pycheckers.game import *
 
 
 def test_squares_to_consider_for_man():
-    piece = CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
+    piece = CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
     assert nearby_squares(piece, (1, 0)) == [(2, 1), (0, 1)]
 
 
@@ -18,10 +18,10 @@ def test_out_of_bounds():
     assert out_of_bounds((0, 8))
 
 
-def test_legal_move_black_basic():
+def test_legal_move_red_basic():
     game = CheckersGame.with_board(
-        {(2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)},
-        turn=CheckerColor.WHITE
+        {(2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)},
+        turn=CheckerColor.RED
     )
 
     assert legal_moves(game) == {
@@ -32,10 +32,10 @@ def test_legal_move_black_basic():
     }
 
 
-def test_legal_move_black_corner():
+def test_legal_move_red_corner():
     game = CheckersGame.with_board(
-        {(0, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)},
-        turn=CheckerColor.WHITE
+        {(0, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)},
+        turn=CheckerColor.RED
     )
 
     assert legal_moves(game) == {
@@ -45,40 +45,40 @@ def test_legal_move_black_corner():
     }
 
 
-def test_legal_move_black_capture():
+def test_legal_move_red_capture():
     game = CheckersGame.with_board(
         {
-            (2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
-            (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
         },
-        turn=CheckerColor.WHITE
+        turn=CheckerColor.RED
     )
 
     assert legal_moves(game) == {(2, 7): [[(4, 5)]]}
 
 
-def test_legal_move_black_multi_capture():
+def test_legal_move_red_multi_capture():
     game = CheckersGame.with_board(
         {
-            (2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
-            (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
-            (3, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (3, 4): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
         },
-        turn=CheckerColor.WHITE
+        turn=CheckerColor.RED
     )
 
     assert legal_moves(game) == {(2, 7): [[(4, 5), (2, 3)]]}
 
 
-def test_legal_move_black_multi_capture_different_paths():
+def test_legal_move_red_multi_capture_different_paths():
     game = CheckersGame.with_board(
         {
-            (2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
-            (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
-            (3, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
-            (5, 4): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (3, 4): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (5, 4): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
         },
-        turn=CheckerColor.WHITE
+        turn=CheckerColor.RED
     )
 
     assert legal_moves(game) == {
@@ -89,7 +89,7 @@ def test_legal_move_black_multi_capture_different_paths():
     }
 
 
-def test_legal_move_black_king():
+def test_legal_move_white_king():
     game = CheckersGame.with_board(
         {(2, 5): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING)},
         turn=CheckerColor.WHITE
@@ -98,7 +98,7 @@ def test_legal_move_black_king():
     assert legal_moves(game) == {(2, 5): [[(3, 6)], [(1, 6)], [(1, 4)], [(3, 4)]]}
 
 
-def test_legal_move_black_king_top_edge():
+def test_legal_move_white_king_top_edge():
     game = CheckersGame.with_board(
         {(3, 0): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING)},
         turn=CheckerColor.WHITE
@@ -107,7 +107,7 @@ def test_legal_move_black_king_top_edge():
     assert legal_moves(game) == {(3, 0): [[(4, 1)], [(2, 1)]]}
 
 
-def test_legal_move_black_king_capture():
+def test_legal_move_white_king_capture():
     game = CheckersGame.with_board(
         {
             (2, 3): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING),
@@ -120,7 +120,7 @@ def test_legal_move_black_king_capture():
     assert legal_moves(game) == {(2, 3): [[(4, 5)], [(4, 1)]]}
 
 
-def test_legal_move_black_king_multi_capture():
+def test_legal_move_white_king_multi_capture():
     game = CheckersGame.with_board(
         {
             (2, 3): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING),
@@ -185,27 +185,27 @@ def test_illegal_moves():
 def test_legal_move():
     game = CheckersGame.with_board(
         {
-            (2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
         },
-        turn=CheckerColor.WHITE
+        turn=CheckerColor.RED
     )
 
     game.move((2, 7), [(3, 6)])
 
-    assert game.board[3, 6] == CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
+    assert game.board[3, 6] == CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
 
 
 def test_legal_move_as_list():
     game = CheckersGame.with_board(
         {
-            (2, 7): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (2, 7): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
         },
-        turn=CheckerColor.WHITE
+        turn=CheckerColor.RED
     )
 
     game.move((2, 7), [[3, 6]])
 
-    assert game.board[3, 6] == CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
+    assert game.board[3, 6] == CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
 
 
 def test_pos_to_square_number():
