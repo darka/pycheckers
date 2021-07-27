@@ -1,4 +1,4 @@
-from pycheckers.game import CheckersGame, is_red
+from pycheckers.game import CheckersGame, is_king, is_red
 
 import xml.etree.ElementTree as ET
 
@@ -22,6 +22,15 @@ def render(game: CheckersGame, board_size: int) -> str:
                 circle_attributes(x, y, square_size, piece_color(piece)),
             )
 
+            if is_king(piece):
+                ET.SubElement(
+                    svg,
+                    "circle",
+                    circle_attributes(
+                        x, y, square_size, piece_color(piece), r_factor=0.2
+                    ),
+                )
+
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -40,10 +49,10 @@ def square_attributes(x, y, size):
     }
 
 
-def circle_attributes(x, y, size, color):
+def circle_attributes(x, y, size, color, r_factor=0.4):
     cx = x * size + size // 2
     cy = y * size + size // 2
-    r = round(0.4 * size)
+    r = round(r_factor * size)
     return {"cx": str(cx), "cy": str(cy), "r": str(r), "class": f"checker-{color}"}
 
 
