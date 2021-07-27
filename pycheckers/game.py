@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from collections import defaultdict
 from dataclasses import dataclass
+import random
 from typing import List, Optional, Tuple
 
 
@@ -109,6 +110,15 @@ class CheckersGame:
             return "."
         else:
             return ascii_symbol(piece)
+
+    def random_move(self) -> None:
+        by_position = legal_moves(self)
+        all_moves = []
+        for position, moves in by_position.items():
+            for path in moves:
+                all_moves.append((position, path))
+        m = random.choice(all_moves)
+        self.move(m[0], m[1])
 
     def move(self, start: Tuple[int, int], moves: List[Tuple[int, int]]) -> None:
         moves = [tuple(m) for m in moves]
