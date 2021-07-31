@@ -389,10 +389,13 @@ def board_value(game: CheckersGame) -> int:
                 ret -= 1
     return ret
 
-
 def minimax(game: CheckersGame, depth: int, maximising_player: bool) \
         -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
-    if depth == 0:
+    return _minimax_internal(game, depth, maximising_player, depth)
+
+def _minimax_internal(game: CheckersGame, depth: int, maximising_player: bool, max_depth: int) \
+        -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
+    if depth == 0 or game.is_over():
         return board_value(game), None, None
 
     best_pos = None
@@ -407,7 +410,9 @@ def minimax(game: CheckersGame, depth: int, maximising_player: bool) \
             for path in paths:
                 new_game = game.copy()
                 new_game.move(pos, path)
-                value, _, _ = minimax(new_game, depth - 1, False)
+                value, _, _ = _minimax_internal(new_game, depth - 1, False, max_depth)
+                if depth == max_depth:
+                    print(value, pos, path)
                 if value > best_value:
                     best_value = value
                     best_pos = pos
@@ -421,10 +426,13 @@ def minimax(game: CheckersGame, depth: int, maximising_player: bool) \
             for path in paths:
                 new_game = game.copy()
                 new_game.move(pos, path)
-                value, _, _ = minimax(new_game, depth - 1, True)
+                value, _, _ = _minimax_internal(new_game, depth - 1, True, max_depth)
+                if depth == max_depth:
+                    print(value, pos, path)
                 if value < best_value:
                     best_value = value
                     best_pos = pos
                     best_path = path
-
+    if depth == max_depth:
+        print(f"Picked move: {best_value}, {best_pos}, {best_path}")
     return best_value, best_pos, best_path
