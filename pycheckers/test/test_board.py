@@ -208,6 +208,34 @@ def test_legal_move_as_list():
     assert game.board[3, 6] == CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
 
 
+def test_game_over():
+    game = CheckersGame.with_board(
+        {
+            (1, 2): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING)
+        }
+    )
+
+    assert not game.is_over()
+
+    game = CheckersGame.with_board(
+        {
+            (1, 2): CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.WHITE, CheckerLevel.KING)
+        }
+    )
+
+    assert game.is_over()
+
+    game = CheckersGame.with_board(
+        {
+            (1, 2): CheckerPiece(CheckerColor.RED, CheckerLevel.MAN),
+            (3, 6): CheckerPiece(CheckerColor.RED, CheckerLevel.KING)
+        }
+    )
+
+    assert game.is_over()
+
 def test_pos_to_square_number():
     assert pos_to_square_number((1, 0)) == 1
     assert pos_to_square_number((7, 0)) == 4

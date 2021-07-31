@@ -90,6 +90,18 @@ class CheckersGame:
         self.board = {}
         self.turn = turn
 
+    def is_over(self):
+        if not self.board:
+            raise Exception('There are no pieces on the board.')
+        white_piece_found = False
+        red_piece_found = False
+        for piece in self.board.values():
+            if piece.color == CheckerColor.WHITE:
+                white_piece_found = True
+            if piece.color == CheckerColor.RED:
+                red_piece_found = True
+        return not white_piece_found or not red_piece_found
+
     @classmethod
     def with_board(cls, board: dict, turn: CheckerColor = CheckerColor.RED) -> "CheckersGame":
         game = cls(turn)
