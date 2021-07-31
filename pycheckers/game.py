@@ -90,17 +90,30 @@ class CheckersGame:
         self.board = {}
         self.turn = turn
 
-    def is_over(self):
+    def is_over(self) -> bool:
+        white_piece_found, red_piece_found = self._colors_on_board()
+        return not white_piece_found or not red_piece_found
+
+    def winner(self) -> Optional[CheckerColor]:
+        white_piece_found, red_piece_found = self._colors_on_board()
+        if white_piece_found and red_piece_found:
+            return None
+        elif white_piece_found:
+            return CheckerColor.WHITE
+        elif red_piece_found:
+            return CheckerColor.RED
+
+    def _colors_on_board(self) -> Tuple[CheckerColor, CheckerColor]:
         if not self.board:
-            raise Exception('There are no pieces on the board.')
+            raise Exception("There are no pieces on the board.")
         white_piece_found = False
         red_piece_found = False
         for piece in self.board.values():
-            if piece.color == CheckerColor.WHITE:
+            if is_white(piece):
                 white_piece_found = True
-            if piece.color == CheckerColor.RED:
+            if is_red(piece):
                 red_piece_found = True
-        return not white_piece_found or not red_piece_found
+        return white_piece_found, red_piece_found
 
     @classmethod
     def with_board(cls, board: dict, turn: CheckerColor = CheckerColor.RED) -> "CheckersGame":

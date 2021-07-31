@@ -217,6 +217,7 @@ def test_game_over():
     )
 
     assert not game.is_over()
+    assert game.winner() is None
 
     game = CheckersGame.with_board(
         {
@@ -226,6 +227,7 @@ def test_game_over():
     )
 
     assert game.is_over()
+    assert game.winner() is CheckerColor.WHITE
 
     game = CheckersGame.with_board(
         {
@@ -235,6 +237,7 @@ def test_game_over():
     )
 
     assert game.is_over()
+    assert game.winner() is CheckerColor.RED
 
 def test_pos_to_square_number():
     assert pos_to_square_number((1, 0)) == 1
