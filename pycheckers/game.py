@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from collections import defaultdict
 from dataclasses import dataclass
+import math
 import random
 from typing import List, Optional, Tuple
 
@@ -89,6 +90,11 @@ class CheckersGame:
     def __init__(self, turn: CheckerColor = CheckerColor.RED):
         self.board = {}
         self.turn = turn
+
+    def copy(self) -> "CheckersGame":
+        new_game = CheckersGame(self.turn)
+        new_game.board = self.board.copy()
+        return new_game
 
     def is_over(self) -> bool:
         white_piece_found, red_piece_found = self._colors_on_board()
@@ -251,7 +257,8 @@ def legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
             # If we can capture something, recursively find all possible moves
             capture_paths = []
             _find_capture_paths(game, piece, [capture_sq], capture_paths)
-            with_captures[position].extend(capture_paths)
+            if capture_paths:
+                with_captures[position].extend(capture_paths)
     if with_captures:
         return with_captures
     else:
@@ -357,3 +364,67 @@ def random_move(game: CheckersGame) -> None:
             all_moves.append((position, path))
     m = random.choice(all_moves)
     game.move(m[0], m[1])
+
+
+def board_value(game: CheckersGame) -> int:
+    if game.is_over():
+        if game.winner() == CheckerColor.WHITE:
+            return 100
+        elif game.winner() == CheckerColor.RED:
+            return -100
+        else:
+            return 0
+
+    ret = 0
+    for piece in game.board.values():
+        if is_white(piece):
+            if is_king(piece):
+                ret += 5
+            else:
+                ret += 1
+        elif is_red(piece):
+            if is_king(piece):
+                ret -= 5
+            else:
+                ret -= 1
+    return ret
+
+
+def minimax(game: CheckersGame, depth: int, maximising_player: bool) \
+        -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
+    if depth == 0:
+        return board_value(game), None, None
+
+    best_pos = None
+    best_path = None
+
+    if maximising_player:
+        best_value = -math.inf
+
+        moves = legal_moves(game)
+
+        for pos, paths in moves.items():
+            for path in paths:
+                new_game = game.copy()
+                new_game.move(pos, path)
+                value, _, _ = minimax(new_game, depth - 1, False)
+                if value > best_value:
+                    best_value = value
+                    best_pos = pos
+                    best_path = path
+    else:
+        best_value = math.inf
+
+        moves = legal_moves(game)
+
+        for pos, paths in moves.items():
+            for path in paths:
+                new_game = game.copy()
+                new_game.move(pos, path)
+                value, _, _ = minimax(new_game, depth - 1, True)
+                if value < best_value:
+                    best_value = value
+                    best_pos = pos
+                    best_path = path
+
+    return best_value, best_pos, best_path
