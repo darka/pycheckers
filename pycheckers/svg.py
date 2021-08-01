@@ -1,4 +1,5 @@
-from pycheckers.game import CheckersGame, is_king, is_red
+from pycheckers.game import CheckersGame
+from pycheckers.piece import is_king, is_red
 
 import xml.etree.ElementTree as ET
 

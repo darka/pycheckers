@@ -1,41 +1,18 @@
-from enum import Enum, auto
 from collections import defaultdict
-from dataclasses import dataclass
 import math
 import random
+from pycheckers.ascii import ascii_symbol
+from pycheckers.piece import (
+    CheckerColor,
+    CheckerLevel,
+    CheckerPiece,
+    is_white,
+    is_red,
+    is_king,
+    is_man,
+)
+from pycheckers.square import capture_square, nearby_squares, out_of_bounds
 from typing import List, Optional, Tuple
-
-
-class CheckerColor(Enum):
-    RED = auto()
-    WHITE = auto()
-
-
-class CheckerLevel(Enum):
-    MAN = auto()
-    KING = auto()
-
-
-@dataclass(frozen=True)
-class CheckerPiece:
-    color: CheckerColor
-    level: CheckerLevel
-
-
-def is_man(piece: CheckerPiece) -> bool:
-    return piece.level == CheckerLevel.MAN
-
-
-def is_king(piece: CheckerPiece) -> bool:
-    return piece.level == CheckerLevel.KING
-
-
-def is_white(piece: CheckerPiece) -> bool:
-    return piece.color == CheckerColor.WHITE
-
-
-def is_red(piece: CheckerPiece) -> bool:
-    return piece.color == CheckerColor.RED
 
 
 class CheckersException(Exception):
@@ -76,15 +53,6 @@ WHITE_START_POS = [
     (7, 2),
 ]
 
-ASCII_SYMBOLS = {
-    CheckerColor.RED: {CheckerLevel.MAN: "m", CheckerLevel.KING: "k"},
-    CheckerColor.WHITE: {CheckerLevel.MAN: "M", CheckerLevel.KING: "K"},
-}
-
-
-def ascii_symbol(piece: CheckerPiece) -> str:
-    return ASCII_SYMBOLS[piece.color][piece.level]
-
 
 class CheckersGame:
     def __init__(self, turn: CheckerColor = CheckerColor.RED):
@@ -122,7 +90,9 @@ class CheckersGame:
         return white_piece_found, red_piece_found
 
     @classmethod
-    def with_board(cls, board: dict, turn: CheckerColor = CheckerColor.RED) -> "CheckersGame":
+    def with_board(
+        cls, board: dict, turn: CheckerColor = CheckerColor.RED
+    ) -> "CheckersGame":
         game = cls(turn)
         game.board = board
         return game
@@ -200,35 +170,19 @@ class CheckersGame:
             self.turn = CheckerColor.WHITE
 
 
-def is_capture_move(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
-    return abs(end[0] - start[0]) == 2
-
-
-def capture_square(start: Tuple[int, int], end: Tuple[int, int]) -> Tuple[int, int]:
-    dx = end[0] - start[0]
-    dx = dx / abs(dx)
-    dy = end[1] - start[1]
-    dy = dy / abs(dy)
-    return (start[0] + dx, start[1] + dy)
-
-
-def out_of_bounds(sq: Tuple[int, int]) -> bool:
-    x, y = sq
-    return x < 0 or x >= 8 or y < 0 or y >= 8
-
-
-def pos_to_square_number(pos):
-    nx = pos[0] // 2 + 1
-    ny = 4 * pos[1]
-    return ny + nx
-
-
-def square_number_to_pos(n):
-    y = (n - 1) // 4
-    x = (n - 1) % 4 * 2
-    if y % 2 == 0:
-        x += 1
-    return (x, y)
+def initial_setup_board() -> CheckersGame:
+    return CheckersGame.with_board(
+        {
+            **{
+                pos: CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
+                for pos in RED_START_POS
+            },
+            **{
+                pos: CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
+                for pos in WHITE_START_POS
+            },
+        }
+    )
 
 
 def legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
@@ -325,36 +279,9 @@ def is_empty(game: CheckersGame, pos: Tuple[int, int]) -> bool:
     return pos not in game.board
 
 
-def man_y_direction(piece: CheckerPiece) -> int:
-    assert piece.level == CheckerLevel.MAN
-    if is_white(piece):
-        return 1
-    else:
-        return -1
+def is_capture_move(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
+    return abs(end[0] - start[0]) == 2
 
-
-def nearby_squares(piece: CheckerPiece, pos: Tuple[int, int]) -> List[Tuple[int, int]]:
-    x, y = pos
-    if piece.level == CheckerLevel.KING:
-        return [(x + 1, y + 1), (x - 1, y + 1), (x - 1, y - 1), (x + 1, y - 1)]
-    else:
-        direction = man_y_direction(piece)
-        return [(x + 1, y + 1 * direction), (x - 1, y + 1 * direction)]
-
-
-def initial_setup_board() -> CheckersGame:
-    return CheckersGame.with_board(
-        {
-            **{
-                pos: CheckerPiece(CheckerColor.RED, CheckerLevel.MAN)
-                for pos in RED_START_POS
-            },
-            **{
-                pos: CheckerPiece(CheckerColor.WHITE, CheckerLevel.MAN)
-                for pos in WHITE_START_POS
-            },
-        }
-    )
 
 def random_move(game: CheckersGame) -> None:
     by_position = legal_moves(game)
@@ -364,75 +291,3 @@ def random_move(game: CheckersGame) -> None:
             all_moves.append((position, path))
     m = random.choice(all_moves)
     game.move(m[0], m[1])
-
-
-def board_value(game: CheckersGame) -> int:
-    if game.is_over():
-        if game.winner() == CheckerColor.WHITE:
-            return 100
-        elif game.winner() == CheckerColor.RED:
-            return -100
-        else:
-            return 0
-
-    ret = 0
-    for piece in game.board.values():
-        if is_white(piece):
-            if is_king(piece):
-                ret += 5
-            else:
-                ret += 1
-        elif is_red(piece):
-            if is_king(piece):
-                ret -= 5
-            else:
-                ret -= 1
-    return ret
-
-def minimax(game: CheckersGame, depth: int, maximising_player: bool) \
-        -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
-    return _minimax_internal(game, depth, maximising_player, depth)
-
-def _minimax_internal(game: CheckersGame, depth: int, maximising_player: bool, max_depth: int) \
-        -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
-    if depth == 0 or game.is_over():
-        return board_value(game), None, None
-
-    best_pos = None
-    best_path = None
-
-    if maximising_player:
-        best_value = -math.inf
-
-        moves = legal_moves(game)
-
-        for pos, paths in moves.items():
-            for path in paths:
-                new_game = game.copy()
-                new_game.move(pos, path)
-                value, _, _ = _minimax_internal(new_game, depth - 1, False, max_depth)
-                if depth == max_depth:
-                    print(value, pos, path)
-                if value > best_value:
-                    best_value = value
-                    best_pos = pos
-                    best_path = path
-    else:
-        best_value = math.inf
-
-        moves = legal_moves(game)
-
-        for pos, paths in moves.items():
-            for path in paths:
-                new_game = game.copy()
-                new_game.move(pos, path)
-                value, _, _ = _minimax_internal(new_game, depth - 1, True, max_depth)
-                if depth == max_depth:
-                    print(value, pos, path)
-                if value < best_value:
-                    best_value = value
-                    best_pos = pos
-                    best_path = path
-    if depth == max_depth:
-        print(f"Picked move: {best_value}, {best_pos}, {best_path}")
-    return best_value, best_pos, best_path
