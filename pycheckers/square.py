@@ -1,8 +1,7 @@
 from pycheckers.piece import CheckerLevel, CheckerPiece, is_white
-from typing import List, Tuple
 
 
-def capture_square(start: Tuple[int, int], end: Tuple[int, int]) -> Tuple[int, int]:
+def capture_square(start: tuple[int, int], end: tuple[int, int]) -> tuple[int, int]:
     dx = end[0] - start[0]
     dx = dx / abs(dx)
     dy = end[1] - start[1]
@@ -10,7 +9,7 @@ def capture_square(start: Tuple[int, int], end: Tuple[int, int]) -> Tuple[int, i
     return (start[0] + dx, start[1] + dy)
 
 
-def out_of_bounds(sq: Tuple[int, int]) -> bool:
+def out_of_bounds(sq: tuple[int, int]) -> bool:
     x, y = sq
     return x < 0 or x >= 8 or y < 0 or y >= 8
 
@@ -37,7 +36,7 @@ def _man_y_direction(piece: CheckerPiece) -> int:
         return -1
 
 
-def nearby_squares(piece: CheckerPiece, pos: Tuple[int, int]) -> List[Tuple[int, int]]:
+def nearby_squares(piece: CheckerPiece, pos: tuple[int, int]) -> list[tuple[int, int]]:
     x, y = pos
     if piece.level == CheckerLevel.KING:
         return [(x + 1, y + 1), (x - 1, y + 1), (x - 1, y - 1), (x + 1, y - 1)]

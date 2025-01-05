@@ -12,7 +12,6 @@ from pycheckers.piece import (
     is_man,
 )
 from pycheckers.square import capture_square, nearby_squares, out_of_bounds
-from typing import List, Optional, Tuple
 
 
 class CheckersException(Exception):
@@ -68,7 +67,7 @@ class CheckersGame:
         white_piece_found, red_piece_found = self._colors_on_board()
         return not white_piece_found or not red_piece_found
 
-    def winner(self) -> Optional[CheckerColor]:
+    def winner(self) -> CheckerColor | None:
         white_piece_found, red_piece_found = self._colors_on_board()
         if white_piece_found and red_piece_found:
             return None
@@ -77,7 +76,7 @@ class CheckersGame:
         elif red_piece_found:
             return CheckerColor.RED
 
-    def _colors_on_board(self) -> Tuple[CheckerColor, CheckerColor]:
+    def _colors_on_board(self) -> tuple[CheckerColor, CheckerColor]:
         if not self.board:
             raise Exception("There are no pieces on the board.")
         white_piece_found = False
@@ -105,14 +104,14 @@ class CheckersGame:
             lines.append(line)
         return "\n".join(lines)
 
-    def _get_ascii_symbol(self, pos: Tuple[int, int]) -> str:
+    def _get_ascii_symbol(self, pos: tuple[int, int]) -> str:
         piece = self.board.get(pos)
         if not piece:
             return "."
         else:
             return ascii_symbol(piece)
 
-    def move(self, start: Tuple[int, int], moves: List[Tuple[int, int]]) -> None:
+    def move(self, start: tuple[int, int], moves: list[tuple[int, int]]) -> None:
         moves = [tuple(m) for m in moves]
         start = tuple(start)
         # Is there such a piece?
@@ -222,8 +221,8 @@ def legal_moves(game: CheckersGame) -> dict:  # TODO: add a cache
 def _find_capture_paths(
     game: CheckersGame,
     piece: CheckerPiece,
-    path: List[Tuple[int, int]],
-    all_paths: List[List[Tuple[int, int]]],
+    path: list[tuple[int, int]],
+    all_paths: list[list[tuple[int, int]]],
 ):
     start = path[-1]
 
@@ -247,9 +246,9 @@ def _find_capture_paths(
 def get_capture_sq(
     game: CheckersGame,
     piece: CheckerPiece,
-    pos: Tuple[int, int],
-    other_pos: Tuple[int, int],
-) -> Optional[Tuple[int, int]]:
+    pos: tuple[int, int],
+    other_pos: tuple[int, int],
+) -> tuple[int, int] | None:
     if is_empty(game, other_pos):
         return None
 
@@ -275,11 +274,11 @@ def get_capture_sq(
     return square_to_check
 
 
-def is_empty(game: CheckersGame, pos: Tuple[int, int]) -> bool:
+def is_empty(game: CheckersGame, pos: tuple[int, int]) -> bool:
     return pos not in game.board
 
 
-def is_capture_move(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
+def is_capture_move(start: tuple[int, int], end: tuple[int, int]) -> bool:
     return abs(end[0] - start[0]) == 2
 
 

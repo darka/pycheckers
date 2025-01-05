@@ -1,7 +1,6 @@
 import math
 from pycheckers.game import CheckersGame, legal_moves
 from pycheckers.piece import CheckerColor, is_white, is_red, is_king
-from typing import List, Optional, Tuple
 
 
 def board_value(game: CheckersGame) -> int:
@@ -30,13 +29,13 @@ def board_value(game: CheckersGame) -> int:
 
 def minimax(
     game: CheckersGame, depth: int, maximising_player: bool
-) -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
+) -> tuple[int, tuple[int, int] | None, list[tuple[int, int]] | None]:
     return _minimax_internal(game, depth, maximising_player, depth)
 
 
 def _minimax_internal(
     game: CheckersGame, depth: int, maximising_player: bool, max_depth: int
-) -> Tuple[int, Optional[Tuple[int, int]], Optional[List[Tuple[int, int]]]]:
+) -> tuple[int, tuple[int, int] | None, list[tuple[int, int]] | None]:
     if depth == 0 or game.is_over():
         return board_value(game), None, None
 
