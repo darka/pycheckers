@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pycheckers.piece import CheckerLevel, CheckerPiece, is_white
 
 

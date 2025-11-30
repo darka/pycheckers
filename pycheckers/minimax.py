@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 from pycheckers.game import CheckersGame, legal_moves
 from pycheckers.piece import CheckerColor, is_white, is_red, is_king
